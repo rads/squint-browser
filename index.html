@@ -1,0 +1,25 @@
+<script type="application/clojurescript">
+
+(ns lit-squint.main
+  (:require ["https://esm.run/lit-html" :as lit]))
+
+(def state (atom {:counter 0}))
+
+(def container (js/document.getElementById "app"))
+
+(defn app []
+  #html ^lit/html
+  [:div
+    [:div "Count: " (:counter @state)]
+    [:button {"@click" (fn [_] (swap! state update :counter inc))}
+      "Increment"]])
+
+(defn render! []
+  (lit/render (app) container))
+
+(render!)
+(add-watch state ::state (fn [_ _ _ _] (render!)))
+
+</script>
+<div id="app"></div>
+<script type="module" src="/squint-browser.js"></script>
