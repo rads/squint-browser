@@ -2,6 +2,8 @@
 
 Run ClojureScript in `<script>` tags without a build step using the [squint](https://github.com/squint-cljs/squint) compiler.
 
+[Click here for an example.](https://rads.github.io/squint-browser/)
+
 ## Usage
 
 Add the following code at the end of the `<body>` tag:
