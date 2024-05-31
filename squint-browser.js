@@ -4,25 +4,41 @@ function hashString(str) {
   return hash >>> 0;
 }
 
-let compiler;
+function cacheKey(id) {
+  return `squint-browser__${id}`;
+}
 
-document.querySelectorAll('script[type="application/clojurescript"]').forEach(async (cljs) => {
-  const text = cljs.innerHTML;
-  const id = hashString(text);
+export default async function squintBrowser(options = {}) {
+  const cache = options.cache;
+  const importMap = options.importMap ?? {
+    imports: {
+      "squint-cljs/": "https://cdn.jsdelivr.net/npm/squint-cljs@v0.7.110/"
+    }
+  };
+  const scripts = options.scripts ?? (async () => {
+    return document.querySelectorAll('script[type="application/squint-cljs"]');
+  });
 
-  let js = localStorage.getItem(`lit-squint.main__${id}`);
-  if (!js) {
-    if (!compiler) compiler = await import('https://esm.run/squint-cljs/lib/compiler');
-    js = compiler.compileString(text).replace(
-      "from 'squint-cljs/",
-      "from 'https://esm.run/squint-cljs/"
-    );
-    localStorage.clear();
-    localStorage.setItem(`lit-squint.main__${id}`, js);
-  }
+  let compiler;
 
-  const script = document.createElement('script');
-  script.type = 'module';
-  script.innerHTML = js;
-  document.body.appendChild(script);
-});
+  (await scripts()).forEach(async (cljs) => {
+    const text = cljs.innerHTML;
+    const id = cache ? hashString(text) : null;
+    let js = cache?.getItem(cacheKey(id));
+    if (!js) {
+      if (!compiler) compiler = await import(`${importMap?.imports['squint-cljs/'] ?? 'squint-cljs/'}lib/compiler.js`);
+      if (importMap) {
+        js = compiler.compileString(text).replace(
+          "from 'squint-cljs/",
+          `from '${importMap.imports['squint-cljs/']}`
+        );
+      }
+      cache?.setItem(cacheKey(id), js);
+    }
+
+    const script = document.createElement('script');
+    script.type = 'module';
+    script.innerHTML = js;
+    document.body.appendChild(script);
+  });
+}

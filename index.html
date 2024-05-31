@@ -1,4 +1,13 @@
-<script type="application/clojurescript">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>squint-browser</title>
+</head>
+<body>
+  <div id="app"></div>
+  <script type="application/squint-cljs">
 
 (ns lit-squint.main
   (:require ["https://esm.run/lit-html" :as lit]))
@@ -20,6 +29,11 @@
 (render!)
 (add-watch state ::state (fn [_ _ _ _] (render!)))
 
-</script>
-<div id="app"></div>
-<script type="module" src="https://cdn.jsdelivr.net/gh/rads/squint-browser@v0.0.1/squint-browser.min.js"></script>
+  </script>
+  <script type="module">
+    import squintBrowser from '/squint-browser.js';
+    squintBrowser();
+  </script>
+</body>
+</html>
+
